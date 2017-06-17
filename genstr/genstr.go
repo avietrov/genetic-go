@@ -7,7 +7,8 @@ import (
 	"time"
 )
 
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+var minRune = 32
+var maxRune = 126
 
 // Config that sets various parameters of the experiment
 type Config struct {
@@ -37,7 +38,7 @@ func (a ByFitness) Less(i, j int) bool { return a[i].fit < a[j].fit }
 func rndString(n int) string {
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		b[i] = rune(rand.Intn(maxRune - minRune))
 	}
 	return string(b)
 }
@@ -58,10 +59,15 @@ func mutate(p string) string {
 	mutation := rand.Intn(3) - 1
 
 	out := []rune(p)
-	n := rune(int(out[idx]) + mutation)
-	if n > rune('A') && n < rune('z') {
-		out[idx] = n
+	mut := int(out[idx]) + mutation
+
+	if mut > maxRune {
+		mut = maxRune
+	} else if mut < minRune {
+		mut = minRune
 	}
+
+	out[idx] = rune(mut)
 
 	return string(out)
 }
