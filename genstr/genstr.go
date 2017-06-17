@@ -47,9 +47,8 @@ func fitness(src string, candidate string) int {
 	// for now assuming the same length
 	fit := 0
 	for i := 0; i < len(src); i++ {
-		si := int(src[i])
-		ci := int(candidate[i])
-		fit += (si - ci) * (si - ci)
+		diff := int(src[i] - candidate[i])
+		fit += diff * diff
 	}
 	return fit
 }
@@ -111,9 +110,12 @@ func RunExperiment(r *Config) ExperimentResult {
 	}
 
 	i := 0
+	N := r.PopulationSize
 	for popul[0].fit > 0 {
 		sort.Sort(ByFitness(popul))
-		fmt.Println(popul[:5])
+		if i%100 == 0 {
+			fmt.Println(popul[0])
+		}
 
 		parent1 := elite(popul)
 		parent2 := elite(popul)
@@ -122,9 +124,9 @@ func RunExperiment(r *Config) ExperimentResult {
 
 		childIndivid := Individ{child, fitness(r.Source, child)}
 
-		if childIndivid.fit < popul[len(popul)-1].fit {
+		if childIndivid.fit < popul[N-1].fit {
 			if !contains(popul, childIndivid) {
-				popul[len(popul)-1] = childIndivid
+				popul[N-1] = childIndivid
 			}
 		}
 
