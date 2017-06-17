@@ -119,6 +119,9 @@ func RunExperiment(r *Config) ExperimentResult {
 
 		parent1 := elite(popul)
 		parent2 := elite(popul)
+		for parent2 == parent1 {
+			parent2 = elite(popul)
+		}
 		child := crossover(parent1.gene, parent2.gene)
 		child = mutate(child)
 
