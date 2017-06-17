@@ -1,9 +1,14 @@
 package main
 
-import "github.com/avietrov/genetic-go/genstr"
+import (
+	"fmt"
+
+	"github.com/avietrov/genetic-go/genstr"
+)
 
 func main() {
-	var config = genstr.Config{"HelloWorld", 7}
-	genstr.RunExperiment(&config)
+	var config = genstr.Config{"Goisanopensourceprogramminglanguagethatmakesiteasytobuildsimplereliableandefficientsoftware", 30, 5, 1, 5}
+	var result = genstr.RunExperiment(&config)
+	fmt.Println("Done: ", result)
 
 }

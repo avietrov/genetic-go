@@ -14,6 +14,9 @@ var maxRune = 126
 type Config struct {
 	Source         string
 	PopulationSize int
+	MutationPower  int
+	MutationGenes  int
+	XoversInGen    int
 }
 
 // ExperimentResult represents final result and how many generations it took to achieve it
@@ -53,20 +56,22 @@ func fitness(src string, candidate string) int {
 	return fit
 }
 
-func mutate(p string) string {
+func mutate(p string, c *Config) string {
 	idx := rand.Intn(len(p))
-	mutation := rand.Intn(3) - 1
-
 	out := []rune(p)
-	mut := int(out[idx]) + mutation
 
-	if mut > maxRune {
-		mut = maxRune
-	} else if mut < minRune {
-		mut = minRune
+	for i := 0; i < c.MutationGenes; i++ {
+		mutation := rand.Intn(c.MutationPower*2) - c.MutationPower/2
+		mut := int(out[idx]) + mutation
+
+		if mut > maxRune {
+			mut = maxRune
+		} else if mut < minRune {
+			mut = minRune
+		}
+
+		out[idx] = rune(mut)
 	}
-
-	out[idx] = rune(mut)
 
 	return string(out)
 }
@@ -117,19 +122,21 @@ func RunExperiment(r *Config) ExperimentResult {
 			fmt.Println(popul[0])
 		}
 
-		parent1 := elite(popul)
-		parent2 := elite(popul)
-		for parent2 == parent1 {
-			parent2 = elite(popul)
-		}
-		child := crossover(parent1.gene, parent2.gene)
-		child = mutate(child)
+		for x := 0; x < r.XoversInGen; x++ {
+			parent1 := elite(popul)
+			parent2 := elite(popul)
+			for parent2 == parent1 {
+				parent2 = elite(popul)
+			}
+			child := crossover(parent1.gene, parent2.gene)
+			child = mutate(child, r)
 
-		childIndivid := Individ{child, fitness(r.Source, child)}
+			childIndivid := Individ{child, fitness(r.Source, child)}
 
-		if childIndivid.fit < popul[N-1].fit {
-			if !contains(popul, childIndivid) {
-				popul[N-1] = childIndivid
+			if childIndivid.fit < popul[N-1].fit {
+				if !contains(popul, childIndivid) {
+					popul[N-1] = childIndivid
+				}
 			}
 		}
 
