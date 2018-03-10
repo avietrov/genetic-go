@@ -65,14 +65,11 @@ func ensureRange(x float64, lo float64, hi float64) float64 {
 }
 
 func mutateFloat(f float64) float64 {
+	span := 1.0 * mutationPower
 	if f == 0 {
-		return rand.Float64() * mutationPower
+		return rand.Float64() * span
 	}
 
-	nf := f
-	for nf == f {
-		nf = f * (rand.Float64()*mutationPower*2 + (1 - mutationPower))
-	}
-
-	return ensureRange(nf, 0.0, 1.0)
+	delta := rand.Float64()*span*2 - span
+	return ensureRange(f+delta, 0.0, 1.0)
 }
