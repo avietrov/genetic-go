@@ -101,6 +101,10 @@ func crossoverAndMutateAsync(popul []Individ, w int, h int, target *gg.Context, 
 	wg.Done()
 }
 
+func saveIndivid(individ *Individ, iter, w, h int) {
+	individ.render(w, h).SavePNG(fmt.Sprintf("out/%07d.png", iter))
+}
+
 // Main does the magic
 func Main() {
 	rand.Seed(42)
@@ -131,7 +135,7 @@ func Main() {
 		}
 
 		if bestFit > popul[0].fit {
-			popul[0].render(w, h).SavePNG(fmt.Sprintf("out/%07d.png", i))
+			go saveIndivid(&popul[0], i, w, h)
 			bestFit = popul[0].fit
 		}
 
