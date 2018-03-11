@@ -7,7 +7,7 @@ import (
 // Gene of every individual represented as a polygon coordinates and color
 type Gene struct {
 	x, y, radius, angle float64
-	red, green, blue    float64
+	red, green, blue    int
 }
 
 // NewRandomGene creates a gene with all values set to random
@@ -17,9 +17,9 @@ func NewRandomGene() Gene {
 		y:      rand.Float64(),
 		radius: rand.Float64(),
 		angle:  rand.Float64(),
-		red:    rand.Float64(),
-		green:  rand.Float64(),
-		blue:   rand.Float64(),
+		red:    rand.Intn(255),
+		green:  rand.Intn(255),
+		blue:   rand.Intn(255),
 	}
 }
 
@@ -44,17 +44,17 @@ func (g *Gene) mutate() Gene {
 	case 3:
 		newGene.angle = mutateFloat(newGene.angle)
 	case 4:
-		newGene.red = mutateFloat(newGene.red)
+		newGene.red = mutateColor(newGene.red)
 	case 5:
-		newGene.green = mutateFloat(newGene.green)
+		newGene.green = mutateColor(newGene.green)
 	case 6:
-		newGene.blue = mutateFloat(newGene.blue)
+		newGene.blue = mutateColor(newGene.blue)
 	}
 
 	return newGene
 }
 
-func ensureRange(x float64, lo float64, hi float64) float64 {
+func ensureRange(x, lo, hi float64) float64 {
 	if x > hi {
 		return hi
 	}
@@ -72,4 +72,27 @@ func mutateFloat(f float64) float64 {
 
 	delta := rand.Float64()*span*2 - span
 	return ensureRange(f+delta, 0.0, 1.0)
+}
+
+func ensureRangeInt(x, lo, hi int) int {
+	if x > hi {
+		return hi
+	}
+	if x < lo {
+		return lo
+	}
+	return x
+}
+
+func mutateColor(c int) int {
+	span := 255.0 * mutationPower
+	if c == 0 {
+		return rand.Intn(int(span))
+	}
+
+	delta := 0
+	for delta == 0 {
+		delta = rand.Intn(int(span))*2 - int(span)
+	}
+	return ensureRangeInt(c+delta, 0, 255)
 }

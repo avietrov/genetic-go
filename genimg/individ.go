@@ -33,7 +33,7 @@ func (i *Individ) render(w int, h int) *gg.Context {
 		r := gene.radius * (float64(w) * maxPolygonSize)
 		a := gene.angle
 		ctx.DrawRegularPolygon(3, x, y, r, a)
-		ctx.SetRGBA(gene.red, gene.green, gene.blue, alpha)
+		ctx.SetRGBA255(gene.red, gene.green, gene.blue, alpha)
 		ctx.Fill()
 	}
 
