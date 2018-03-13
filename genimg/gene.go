@@ -23,35 +23,24 @@ func NewRandomGene() Gene {
 	}
 }
 
-func (g *Gene) mutate() Gene {
-	newGene := Gene{
-		x:      g.x,
-		y:      g.y,
-		radius: g.radius,
-		angle:  g.angle,
-		red:    g.red,
-		green:  g.green,
-		blue:   g.blue,
-	}
-
+// Mutate creates a new gene with one of the fields changed
+func (g *Gene) Mutate(power float64) {
 	switch rand.Intn(7) {
 	case 0:
-		newGene.x = mutateFloat(newGene.x)
+		g.x = mutateFloat(g.x, power)
 	case 1:
-		newGene.y = mutateFloat(newGene.y)
+		g.y = mutateFloat(g.y, power)
 	case 2:
-		newGene.radius = mutateFloat(newGene.radius)
+		g.radius = mutateFloat(g.radius, power)
 	case 3:
-		newGene.angle = mutateFloat(newGene.angle)
+		g.angle = mutateFloat(g.angle, power)
 	case 4:
-		newGene.red = mutateColor(newGene.red)
+		g.red = mutateColor(g.red, power)
 	case 5:
-		newGene.green = mutateColor(newGene.green)
+		g.green = mutateColor(g.green, power)
 	case 6:
-		newGene.blue = mutateColor(newGene.blue)
+		g.blue = mutateColor(g.blue, power)
 	}
-
-	return newGene
 }
 
 func ensureRange(x, lo, hi float64) float64 {
@@ -64,35 +53,19 @@ func ensureRange(x, lo, hi float64) float64 {
 	return x
 }
 
-func mutateFloat(f float64) float64 {
-	span := 1.0 * mutationPower
+func mutateFloat(f, power float64) float64 {
 	if f == 0 {
-		return rand.Float64() * span
+		return rand.Float64() * power
 	}
 
-	delta := rand.Float64()*span*2 - span
+	delta := rand.Float64()*power*2 - power
 	return ensureRange(f+delta, 0.0, 1.0)
 }
 
-func ensureRangeInt(x, lo, hi int) int {
-	if x > hi {
-		return hi
+func mutateColor(c int, power float64) int {
+	nc := c
+	for nc == c {
+		nc = int(255.0 * mutateFloat(float64(c)/255.0, power))
 	}
-	if x < lo {
-		return lo
-	}
-	return x
-}
-
-func mutateColor(c int) int {
-	span := 255.0 * mutationPower
-	if c == 0 {
-		return rand.Intn(int(span))
-	}
-
-	delta := 0
-	for delta == 0 {
-		delta = rand.Intn(int(span))*2 - int(span)
-	}
-	return ensureRangeInt(c+delta, 0, 255)
+	return nc
 }
