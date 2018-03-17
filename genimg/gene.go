@@ -1,6 +1,7 @@
 package genimg
 
 import (
+	"math"
 	"math/rand"
 )
 
@@ -16,7 +17,7 @@ func NewRandomGene() Gene {
 		x:      rand.Float64(),
 		y:      rand.Float64(),
 		radius: rand.Float64(),
-		angle:  rand.Float64(),
+		angle:  2 * math.Pi * rand.Float64(),
 		red:    rand.Intn(255),
 		green:  rand.Intn(255),
 		blue:   rand.Intn(255),
@@ -33,7 +34,7 @@ func (g *Gene) Mutate(power float64) {
 	case 2:
 		g.radius = mutateFloat(g.radius, power)
 	case 3:
-		g.angle = mutateFloat(g.angle, power)
+		g.angle = 2 * math.Pi * mutateFloat(g.angle, power)
 	case 4:
 		g.red = mutateColor(g.red, power)
 	case 5:
