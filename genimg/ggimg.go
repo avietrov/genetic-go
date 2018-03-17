@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"log"
 	"os"
 
 	"github.com/fogleman/gg"
@@ -23,9 +22,9 @@ func compareColors(c1 color.Color, c2 color.Color) int {
 	return int(rd*rd + gd*gd + bd*bd)
 }
 
-func fitnessTo(target *gg.Context) func(i *Individ) int64 {
+func FitnessTo(target *gg.Context) func(i *Individ) int64 {
 	return func(i *Individ) int64 {
-		ctx := render(i, target.Width(), target.Height())
+		ctx := Render(i, target.Width(), target.Height())
 		diff := int64(0)
 		count := int64(0)
 		for x := 0.0; x < 1.0; x += precision {
@@ -43,7 +42,7 @@ func fitnessTo(target *gg.Context) func(i *Individ) int64 {
 	}
 }
 
-func readTarget(path string) (*gg.Context, error) {
+func ReadTarget(path string) (*gg.Context, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -59,7 +58,7 @@ func readTarget(path string) (*gg.Context, error) {
 	return ctx, nil
 }
 
-func render(i *Individ, w int, h int) *gg.Context {
+func Render(i *Individ, w int, h int) *gg.Context {
 	ctx := gg.NewContext(int(w), int(h))
 	ctx.SetRGBA(1, 1, 1, 1)
 	ctx.DrawRectangle(0, 0, 1.0*float64(w), 1.0*float64(h))
@@ -79,31 +78,11 @@ func render(i *Individ, w int, h int) *gg.Context {
 	return ctx
 }
 
-func observer(w, h int) func(int, []Individ) {
+func Observer(w, h int) func(int, []Individ) {
 	return func(generation int, popul []Individ) {
 		if generation%1000 == 0 {
-			render(&popul[0], w, h).SavePNG(fmt.Sprintf("out/%07d.png", generation))
+			go Render(&popul[0], w, h).SavePNG(fmt.Sprintf("out/%07d.png", generation))
 			fmt.Printf("%v\n", popul[0].Fit)
 		}
 	}
-}
-
-// Main does the magic
-func Main() {
-	target, err := readTarget("target.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	w := target.Width()
-	h := target.Height()
-	conf := Config{
-		XOverCount:     2,
-		PopulSize:      30,
-		GenomSize:      300,
-		MutationPower:  0.2,
-		GenesToMutate:  5,
-		MaxGenerations: 100000,
-	}
-
-	FindFittest(conf, fitnessTo(target), observer(w, h))
 }

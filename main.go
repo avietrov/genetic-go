@@ -3,38 +3,45 @@ package main
 import (
 	"flag"
 	"log"
-	"os"
-	"runtime"
-	"runtime/pprof"
 
 	"github.com/avietrov/genetic-go/genimg"
 )
 
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
-var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
-
 func main() {
+	targetPath := flag.String("target", "target.png", "target image")
+	conf := readConfig()
 	flag.Parse()
-	if *cpuprofile != "" {
-		f, err := os.Create(*cpuprofile)
-		if err != nil {
-			log.Fatal("could not create CPU profile: ", err)
-		}
-		if err := pprof.StartCPUProfile(f); err != nil {
-			log.Fatal("could not start CPU profile: ", err)
-		}
-		defer pprof.StopCPUProfile()
+	target, err := genimg.ReadTarget(*targetPath)
+	if err != nil {
+		log.Fatal(err)
 	}
-	genimg.Main()
-	if *memprofile != "" {
-		f, err := os.Create(*memprofile)
-		if err != nil {
-			log.Fatal("could not create memory profile: ", err)
-		}
-		runtime.GC() // get up-to-date statistics
-		if err := pprof.WriteHeapProfile(f); err != nil {
-			log.Fatal("could not write memory profile: ", err)
-		}
-		f.Close()
+	w := target.Width()
+	h := target.Height()
+
+	genimg.FindFittest(conf, genimg.FitnessTo(target), genimg.Observer(w, h))
+}
+
+func readConfig() genimg.Config {
+	var xoverC int
+	var populS int
+	var genomS int
+	var mutatP float64
+	var mutatC int
+	var maxGen int
+
+	flag.IntVar(&xoverC, "x-over-count", 2, "number of crossovers done per generation.")
+	flag.IntVar(&populS, "population-size", 30, "number of individuals per generation (how many images per generation).")
+	flag.IntVar(&genomS, "genom-size", 300, "how large is DNA of each individ (how many triangles per image).")
+	flag.Float64Var(&mutatP, "mutation-power", 0.2, "value from 0.0+ to to 1.0, that defines stregth of mutations.")
+	flag.IntVar(&mutatC, "mutation-count", 5, "value from 1 to {genom-size} that defines how many genes are mutated per individ mutation.")
+	flag.IntVar(&maxGen, "max-generations", 100000, "maximum number of generations.")
+
+	return genimg.Config{
+		XOverCount:     xoverC,
+		PopulSize:      populS,
+		GenomSize:      genomS,
+		MutationPower:  mutatP,
+		GenesToMutate:  mutatC,
+		MaxGenerations: maxGen,
 	}
 }
