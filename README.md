@@ -10,6 +10,7 @@ go run main.go --target="example/gopher.png"
 ```
 
 <img src="example/gopher.png" width=200/> <img src="example/gopher.gif" width=200/>
+
 A more complex image:
 ```
 go run main.go --genom-size=1000 --mutation-count=30 --population-size=100 --x-over-count=4 --target="example/lisa.jpg"
